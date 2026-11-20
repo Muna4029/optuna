@@ -63,8 +63,12 @@ def _get_pareto_front_trials_by_trials(
     trials: Sequence[FrozenTrial], directions: Sequence[StudyDirection]
 ) -> List[FrozenTrial]:
     if len(directions) == 2:
-        return _get_pareto_front_trials_2d(trials, directions)  # Log-linear in number of trials.
-    return _get_pareto_front_trials_nd(trials, directions)  # Quadratic in number of trials.
+        return _get_pareto_front_trials_2d(
+            trials, directions
+        )  # Log-linear in number of trials.
+    return _get_pareto_front_trials_nd(
+        trials, directions
+    )  # Quadratic in number of trials.
 
 
 def _get_pareto_front_trials(study: "optuna.study.Study") -> List[FrozenTrial]:
@@ -85,7 +89,9 @@ def _fast_non_dominated_sort(
     # First, we calculate the domination matrix for the objective values.
     domination_mat = np.all(
         objective_values[:, np.newaxis, :] >= objective_values[np.newaxis, :, :], axis=2
-    ) & np.any(objective_values[:, np.newaxis, :] > objective_values[np.newaxis, :, :], axis=2)
+    ) & np.any(
+        objective_values[:, np.newaxis, :] > objective_values[np.newaxis, :, :], axis=2
+    )
     if penalty is not None:
         # Filter the domination relations by the penalty on the constraints.
         # When a penalty score does not exist, the trial is considered to be dominated by the
@@ -97,7 +103,8 @@ def _fast_non_dominated_sort(
         # scores are bounded, the domination relationship is discarded.
         is_infeasible = penalty > 0
         domination_mat &= ~(
-            (penalty[:, np.newaxis] == penalty) & (is_infeasible[:, np.newaxis] | is_infeasible)
+            (penalty[:, np.newaxis] == penalty)
+            & (is_infeasible[:, np.newaxis] | is_infeasible)
         )
         # If the penalty score is dominated, the value domination relationship is overwritten.
         penalty = np.where(is_nan, np.inf, penalty)
@@ -139,7 +146,9 @@ def _dominates(
     assert values1 is not None
 
     if len(values0) != len(values1):
-        raise ValueError("Trials with different numbers of objectives cannot be compared.")
+        raise ValueError(
+            "Trials with different numbers of objectives cannot be compared."
+        )
 
     if len(values0) != len(directions):
         raise ValueError(
