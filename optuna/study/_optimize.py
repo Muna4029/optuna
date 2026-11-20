@@ -47,14 +47,20 @@ def _optimize(
 ) -> None:
     if not isinstance(catch, tuple):
         raise TypeError(
-            "The catch argument is of type '{}' but must be a tuple.".format(type(catch).__name__)
+            "The catch argument is of type '{}' but must be a tuple.".format(
+                type(catch).__name__
+            )
         )
 
     if study._thread_local.in_optimize_loop:
-        raise RuntimeError("Nested invocation of `Study.optimize` method isn't allowed.")
+        raise RuntimeError(
+            "Nested invocation of `Study.optimize` method isn't allowed."
+        )
 
     if show_progress_bar and n_trials is None and timeout is not None and n_jobs != 1:
-        warnings.warn("The timeout-based progress bar is not supported with n_jobs != 1.")
+        warnings.warn(
+            "The timeout-based progress bar is not supported with n_jobs != 1."
+        )
         show_progress_bar = False
 
     progress_bar = pbar_module._ProgressBar(show_progress_bar, n_trials, timeout)
@@ -89,7 +95,8 @@ def _optimize(
 
                     if (
                         timeout is not None
-                        and (datetime.datetime.now() - time_start).total_seconds() > timeout
+                        and (datetime.datetime.now() - time_start).total_seconds()
+                        > timeout
                     ):
                         break
 
@@ -223,7 +230,9 @@ def _run_trial(
         if frozen_trial.state == TrialState.COMPLETE:
             study._log_completed_trial(frozen_trial)
         elif frozen_trial.state == TrialState.PRUNED:
-            _logger.info("Trial {} pruned. {}".format(frozen_trial.number, str(func_err)))
+            _logger.info(
+                "Trial {} pruned. {}".format(frozen_trial.number, str(func_err))
+            )
         elif frozen_trial.state == TrialState.FAIL:
             if func_err is not None:
                 _log_failed_trial(
@@ -265,4 +274,6 @@ def _log_failed_trial(
         exc_info=exc_info,
     )
 
-    _logger.warning("Trial {} failed with value {}.".format(trial.number, repr(value_or_values)))
+    _logger.warning(
+        "Trial {} failed with value {}.".format(trial.number, repr(value_or_values))
+    )

@@ -112,7 +112,9 @@ def plot_terminator_improvement(
     """
     _imports.check()
 
-    info = _get_improvement_info(study, plot_error, improvement_evaluator, error_evaluator)
+    info = _get_improvement_info(
+        study, plot_error, improvement_evaluator, error_evaluator
+    )
     return _get_improvement_plot(info, min_n_trials)
 
 
@@ -123,7 +125,9 @@ def _get_improvement_info(
     error_evaluator: BaseErrorEvaluator | None = None,
 ) -> _ImprovementInfo:
     if study._is_multi_objective():
-        raise ValueError("This function does not support multi-objective optimization study.")
+        raise ValueError(
+            "This function does not support multi-objective optimization study."
+        )
 
     if improvement_evaluator is None:
         improvement_evaluator = RegretBoundEvaluator()
