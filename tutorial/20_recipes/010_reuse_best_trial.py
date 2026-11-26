@@ -34,7 +34,11 @@ import optuna
 
 def objective(trial):
     X, y = make_classification(n_features=10, random_state=1)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1)
+    # Ensure the train/test split preserves class proportions to avoid
+    # training on a single class which makes LogisticRegression.fit fail.
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, random_state=1, stratify=y
+    )
 
     C = trial.suggest_float("C", 1e-7, 10.0, log=True)
 
@@ -59,9 +63,20 @@ print(study.best_trial.value)  # Show the best value.
 def detailed_objective(trial):
     # Use same code objective to reproduce the best model
     X, y = make_classification(n_features=10, random_state=1)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1)
+    # Also stratify here to avoid single-class training splits.
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, random_state=1, stratify=y
+    )
 
-    C = trial.suggest_float("C", 1e-7, 10.0, log=True)
+    # Support both active optuna.trial.Trial (with suggest_float) and
+    # optuna.trial.FrozenTrial (returned by study.best_trial) which has a
+    # .params dictionary.
+    if hasattr(trial, "suggest_float"):
+        C = trial.suggest_float("C", 1e-7, 10.0, log=True)
+    else:
+        # FrozenTrial.params may store the value; fall back to a sensible default
+        # if not present.
+        C = float(trial.params.get("C", 1.0))
 
     clf = LogisticRegression(C=C)
     clf.fit(X_train, y_train)
